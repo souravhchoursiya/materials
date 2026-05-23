@@ -153,8 +153,9 @@
             const handleAccess = async (e) => {
                 e.preventDefault();
                 setLoading(true); setStatus({ type: '', msg: '' }); setNotesData(null);
-                
-                const subjectName = availableSubjects.find(s => s.id === selectedFolderId)?.name || 'Unknown Subject';
+                // FIXED: Safely check for the subject without using the modern "?." syntax
+                const foundSubject = availableSubjects.find(s => s.id === selectedFolderId);
+                const subjectName = foundSubject ? foundSubject.name : 'Unknown Subject';
 
                 try {
                     const res = await fetch(`${scriptURL}?formNo=${encodeURIComponent(formNo)}&folderId=${encodeURIComponent(selectedFolderId)}&subject=${encodeURIComponent(subjectName)}&category=${encodeURIComponent(selectedCategory)}`);
