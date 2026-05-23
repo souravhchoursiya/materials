@@ -210,7 +210,7 @@
                     {view === 'register' && (
                         <form onSubmit={handleRegister}>
                             <input type="text" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} required />
-                            <input type="text" placeholder="Form Number" value={formNo} onChange={(e) => setFormNo(e.target.value)} required />
+                            <input type="text" placeholder="Examination Roll No." value={formNo} onChange={(e) => setFormNo(e.target.value)} required />
                             <button type="submit" disabled={loading || isFetchingConfig}>
                                 {loading ? <div className="spinner"></div> : 'Complete Registration'}
                             </button>
@@ -228,7 +228,7 @@
                                     required
                                 >
                                     {isFetchingConfig ? (
-                                        <option value="">Fetching framework...</option>
+                                        <option value="">Fetching Coursework...</option>
                                     ) : (
                                         categories.map((cat, index) => (
                                             <option key={index} value={cat}>{cat}</option>
@@ -252,7 +252,7 @@
                                     )}
                                 </select>
                                 
-                                <input type="text" placeholder="Enter Form Number" value={formNo} onChange={(e) => setFormNo(e.target.value)} required />
+                                <input type="text" placeholder="Examination Roll No." value={formNo} onChange={(e) => setFormNo(e.target.value)} required />
                                 <button type="submit" disabled={loading || isFetchingConfig || !selectedFolderId}>
                                     {loading ? <div className="spinner"></div> : 'Access Material'}
                                 </button>
