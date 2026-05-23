@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Study Portal</title>
+    
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/en/thumb/b/b6/Delhi_University.svg/960px-Delhi_University.svg.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    
+    <style>
+        :root { --primary: #4F46E5; --primary-hover: #4338CA; --bg-color: #F8FAFC; --card-bg: #FFFFFF; --text-main: #0F172A; --text-muted: #64748B; --border: #E2E8F0; --danger: #EF4444; --danger-bg: #FEE2E2; --success: #10B981; --success-bg: #D1FAE5; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); min-height: 100vh; box-sizing: border-box; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; color: var(--text-main); user-select: none;}
+        .container { background-color: var(--card-bg); padding: 35px 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); width: 100%; max-width: 420px; box-sizing: border-box; display: flex; flex-direction: column; }
+        .logo { display: block; margin: 0 auto 15px auto; width: 85px; }
+        h2 { text-align: center; margin: 0 0 5px 0; font-weight: 700; color: var(--text-main); letter-spacing: -0.5px;}
+        .subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 25px; }
+        
+        .tabs { display: flex; background: #F1F5F9; border-radius: 8px; padding: 4px; margin-bottom: 20px; }
+        .tab { flex: 1; text-align: center; padding: 10px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+        .tab.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        input, select { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 15px; font-family: inherit; margin-bottom: 15px; background: #F8FAFC; transition: 0.2s; color: var(--text-main); }
+        input:focus, select:focus { outline: none; border-color: var(--primary); background: #FFF; box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+        select:disabled { background: #E2E8F0; opacity: 0.7; }
+
+        button { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; display: flex; justify-content: center; align-items: center;}
+        button:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);}
+        button:disabled { opacity: 0.65; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        
+        .msg { padding: 14px; border-radius: 8px; text-align: center; font-size: 14px; margin-bottom: 20px; font-weight: 500; animation: slideDown 0.3s ease-out; }
+        .msg.error { background: var(--danger-bg); color: #991B1B; border: 1px solid #FECACA; }
+        .msg.success { background: var(--success-bg); color: #065F46; border: 1px solid #A7F3D0; }
+        
+        .notes-area { background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 15px; animation: fadeIn 0.4s; }
+        .notes-header { text-align: center; font-weight: 600; color: var(--primary); margin-bottom: 5px; }
+        
+        .file-list { max-height: 180px; overflow-y: auto; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 15px; padding-right: 5px; }
+        .file-list::-webkit-scrollbar { width: 6px; }
+        .file-list::-webkit-scrollbar-track { background: transparent; }
+        .file-list::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 10px; }
+
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E2E8F0; }
+        .file-item:last-child { border-bottom: none; }
+        
+        .file-name { font-size: 14px; color: var(--text-main); font-weight: 500; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
+        
+        .btn-dl { background: var(--primary); color: white; border: none; font-family: inherit; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; width: auto;}
+        .btn-dl:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);}
+        
+        .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #fff; border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .footer { margin-top: 25px; text-align: center; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 15px; flex-shrink: 0;}
+    </style>
+</head>
+<body>
+    <div id="root" style="width: 100%; max-width: 420px; display: flex; justify-content: center;"></div>
+    
+    <script type="text/babel">
+        function PortalApp() {
+            const [view, setView] = React.useState('access');
+            const [name, setName] = React.useState('');
+            const [formNo, setFormNo] = React.useState('');
+            
+            // UPDATED HIERARCHY STATES
+            const [folderHierarchy, setFolderHierarchy] = React.useState({});
+            const [categories, setCategories] = React.useState([]); // e.g. DSC, DSE
+            const [selectedCategory, setSelectedCategory] = React.useState('');
+            const [availableSubjects, setAvailableSubjects] = React.useState([]); // Subjects inside chosen category
+            const [selectedFolderId, setSelectedFolderId] = React.useState('');
+            
+            const [appConfig, setAppConfig] = React.useState({ crName: 'Loading...', crPhone: '', developerName: 'Loading...', departmentName: 'Loading...' });
+            
+            const [loading, setLoading] = React.useState(false);
+            const [isFetchingConfig, setIsFetchingConfig] = React.useState(true);
+            const [status, setStatus] = React.useState({ type: '', msg: '' });
+            const [notesData, setNotesData] = React.useState(null);
+
+            // ==========================================
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxn9sW6i3kmsAJH9ScI4Ys8MWiPt0QwwDUqjhi_XJmO3-qOeck7hhtAJvmbOnmYK1-a/exec'; // Ensure this points to the NEW deployment!
+            // ==========================================
+
+            // Initial Fetch
+            React.useEffect(() => {
+                const fetchConfig = async () => {
+                    try {
+                        const res = await fetch(`${scriptURL}?action=getConfig`);
+                        const result = await res.json();
+                        if (result.status === 'success') {
+                            setAppConfig(result.data.appInfo);
+                            const hierarchy = result.data.hierarchy;
+                            setFolderHierarchy(hierarchy);
+                            
+                            const catKeys = Object.keys(hierarchy).sort();
+                            if (catKeys.length > 0) {
+                                setCategories(catKeys);
+                                setSelectedCategory(catKeys[0]); // Select first category (e.g. DSC)
+                            }
+                        }
+                    } catch (err) {
+                        setStatus({ type: 'error', msg: 'Failed to securely connect to server.' });
+                    } finally {
+                        setIsFetchingConfig(false);
+                    }
+                };
+                fetchConfig();
+            }, []);
+
+            // Handle Cascading Dropdown: When Category changes, update Subjects
+            React.useEffect(() => {
+                if (selectedCategory && folderHierarchy[selectedCategory]) {
+                    const subjects = folderHierarchy[selectedCategory];
+                    setAvailableSubjects(subjects);
+                    if (subjects.length > 0) {
+                        setSelectedFolderId(subjects[0].id); // Auto-select first subject
+                    } else {
+                        setSelectedFolderId('');
+                    }
+                } else {
+                    setAvailableSubjects([]);
+                    setSelectedFolderId('');
+                }
+            }, [selectedCategory, folderHierarchy]);
+
+            const handleRegister = async (e) => {
+                e.preventDefault();
+                setLoading(true); setStatus({ type: '', msg: '' }); setNotesData(null);
+                try {
+                    const res = await fetch(scriptURL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'register', name, formNo }) 
+                    });
+                    const result = await res.json();
+                    if (result.status === 'success') {
+                        setStatus({ type: 'success', msg: result.message });
+                        setName(''); 
+                        setTimeout(() => switchView('access'), 2000); 
+                    } else {
+                        setStatus({ type: 'error', msg: result.message });
+                    }
+                } catch (err) {
+                    setStatus({ type: 'error', msg: 'Network error during registration.' });
+                }
+                setLoading(false);
+            };
+
+            const handleAccess = async (e) => {
+                e.preventDefault();
+                setLoading(true); setStatus({ type: '', msg: '' }); setNotesData(null);
+                
+                const subjectName = availableSubjects.find(s => s.id === selectedFolderId)?.name || 'Unknown Subject';
+
+                try {
+                    const res = await fetch(`${scriptURL}?formNo=${encodeURIComponent(formNo)}&folderId=${encodeURIComponent(selectedFolderId)}&subject=${encodeURIComponent(subjectName)}&category=${encodeURIComponent(selectedCategory)}`);
+                    const result = await res.json();
+                    
+                    if (result.status === 'success') {
+                        setNotesData(result.data);
+                        setStatus({ type: 'success', msg: `Welcome back, ${result.data.studentName.split(' ')[0]}!` });
+                    } else {
+                        setStatus({ type: 'error', msg: result.message });
+                    }
+                } catch (err) {
+                    setStatus({ type: 'error', msg: 'Network error while fetching notes.' });
+                }
+                setLoading(false);
+            };
+
+            const handleDownloadTrack = (file) => {
+                window.open(file.url, '_blank');
+                fetch(scriptURL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'log_download',
+                        formNo: formNo,
+                        studentName: notesData.studentName,
+                        category: notesData.categoryFetched,
+                        subject: notesData.subjectFetched,
+                        fileName: file.name
+                    })
+                }).catch(err => console.log("Background log failed"));
+            };
+
+            const switchView = (newView) => {
+                setView(newView);
+                setStatus({ type: '', msg: '' });
+                setNotesData(null);
+            };
+
+            return (
+                <div className="container">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/b/b6/Delhi_University.svg/960px-Delhi_University.svg.png" className="logo" alt="Logo" />
+                    <h2>Study Portal</h2>
+                    <div className="subtitle">{appConfig.departmentName}</div>
+
+                    <div className="tabs">
+                        <div className={`tab ${view === 'access' ? 'active' : ''}`} onClick={() => switchView('access')}>Unlock Notes</div>
+                        <div className={`tab ${view === 'register' ? 'active' : ''}`} onClick={() => switchView('register')}>Register Here</div>
+                    </div>
+
+                    {status.msg && <div className={`msg ${status.type}`}>{status.msg}</div>}
+
+                    {view === 'register' && (
+                        <form onSubmit={handleRegister}>
+                            <input type="text" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} required />
+                            <input type="text" placeholder="Form Number" value={formNo} onChange={(e) => setFormNo(e.target.value)} required />
+                            <button type="submit" disabled={loading || isFetchingConfig}>
+                                {loading ? <div className="spinner"></div> : 'Complete Registration'}
+                            </button>
+                        </form>
+                    )}
+
+                    {view === 'access' && (
+                        <div>
+                            <form onSubmit={handleAccess}>
+                                {/* DROPDOWN 1: Course Type (DSC/DSE) */}
+                                <select 
+                                    value={selectedCategory} 
+                                    onChange={(e) => setSelectedCategory(e.target.value)} 
+                                    disabled={isFetchingConfig || loading || categories.length === 0}
+                                    required
+                                >
+                                    {isFetchingConfig ? (
+                                        <option value="">Fetching framework...</option>
+                                    ) : (
+                                        categories.map((cat, index) => (
+                                            <option key={index} value={cat}>{cat}</option>
+                                        ))
+                                    )}
+                                </select>
+
+                                {/* DROPDOWN 2: Subjects (Finance, etc.) */}
+                                <select 
+                                    value={selectedFolderId} 
+                                    onChange={(e) => setSelectedFolderId(e.target.value)} 
+                                    disabled={isFetchingConfig || loading || availableSubjects.length === 0}
+                                    required
+                                >
+                                    {availableSubjects.length === 0 ? (
+                                        <option value="">No subjects found</option>
+                                    ) : (
+                                        availableSubjects.map((sub, index) => (
+                                            <option key={index} value={sub.id}>{sub.name}</option>
+                                        ))
+                                    )}
+                                </select>
+                                
+                                <input type="text" placeholder="Enter Form Number" value={formNo} onChange={(e) => setFormNo(e.target.value)} required />
+                                <button type="submit" disabled={loading || isFetchingConfig || !selectedFolderId}>
+                                    {loading ? <div className="spinner"></div> : 'Access Material'}
+                                </button>
+                            </form>
+
+                            {notesData && (
+                                <div className="notes-area">
+                                    <div className="notes-header" style={{fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500'}}>
+                                        {notesData.categoryFetched}
+                                    </div>
+                                    <div className="notes-header">{notesData.subjectFetched} Documents</div>
+                                    
+                                    <div className="file-list">
+                                        {notesData.notes.length === 0 ? (
+                                            <div style={{textAlign: 'center', fontSize: '13px', color: 'var(--text-muted)'}}>No files currently available for this subject.</div>
+                                        ) : (
+                                            notesData.notes.map((file, i) => (
+                                                <div className="file-item" key={i}>
+                                                    <span className="file-name" title={file.name}>{file.name}</span>
+                                                    <button type="button" className="btn-dl" onClick={() => handleDownloadTrack(file)}>
+                                                        Open
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '13px', color: 'var(--text-muted)' }}>
+                        Need Help? Contact:{' '}
+                        {isFetchingConfig ? (
+                            <span>Loading...</span>
+                        ) : (
+                            <a href={`https://wa.me/${appConfig.crPhone}?text=Hi%20${appConfig.crName},%20I%20am%20having%20trouble%20with%20the%20study%20portal.`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontWeight: '600', textDecoration: 'none' }}>
+                                {appConfig.crName} (WhatsApp)
+                            </a>
+                        )}
+                    </div>
+                    
+                    <div className="footer">
+                        &copy; {new Date().getFullYear()} {appConfig.crName}. All rights reserved.<br/>
+                        <strong style={{color: 'var(--text-main)'}}>Developed by:</strong> {appConfig.developerName}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<PortalApp />);
+    </script>
+</body>
+</html>
