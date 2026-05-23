@@ -1,2 +1,0 @@
-# materials
-Specific Study Material
